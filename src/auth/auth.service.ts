@@ -7,6 +7,8 @@ import * as argon2 from 'argon2';
 import { User } from 'src/schemas/user.schema';
 import { ConfigService } from '@nestjs/config';
 import { UserResponseDto } from 'src/users/dto';
+import { LoginDto } from './dto/login.dto';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class AuthService {
@@ -32,9 +34,11 @@ export class AuthService {
 
       this.setTokenCookie(res, accessToken);
 
-      const userWithoutPassword = this.excludePassword(newUser);
+      const userResponse = plainToClass(UserResponseDto, newUser.toObject(), {
+        excludeExtraneousValues: true,
+      });
 
-      return { newUser: userWithoutPassword, accessToken };
+      return { user: userResponse, accessToken };
     } catch (error) {
       if (error.code === 11000) {
         throw new ConflictException(
@@ -45,10 +49,44 @@ export class AuthService {
     }
   }
 
-  private createAccessToken(user: User): string {
+  async validateUser(userData: LoginDto): Promise<UserResponseDto> | null {
+    const user = await this.usersService.findByEmail(userData.email);
+
+    if (!user) {
+      return null;
+    }
+
+    const passwordIsValid = await argon2.verify(
+      user.password,
+      userData.password,
+    );
+    if (!passwordIsValid) {
+      return null;
+    }
+    const userResponse = plainToClass(UserResponseDto, user.toObject(), {
+      excludeExtraneousValues: true,
+    });
+    return userResponse;
+  }
+
+  async login(
+    userData: LoginDto,
+    res: Response,
+    user: UserResponseDto,
+  ): Promise<RegisterResponseDto> {
+    const accessToken = this.createAccessToken(userData);
+    this.setTokenCookie(res, accessToken);
+
+    return {
+      user,
+      accessToken,
+    };
+  }
+
+  private createAccessToken(user: Pick<User, 'password' | 'email'>): string {
     return this.jwtService.sign({
       email: user.email,
-      sub: user._id.toString(),
+      sub: user.password,
     });
   }
 
@@ -58,11 +96,5 @@ export class AuthService {
       sameSite: 'strict',
       maxAge: this.configService.get('TOKEN_MAX_AGE'),
     });
-  }
-
-  private excludePassword(user: User): UserResponseDto {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...userWithoutPassword } = user.toObject();
-    return userWithoutPassword;
   }
 }

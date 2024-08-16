@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { BaseAuthDto } from './base-auth.dto';
 
-export class RegisterDto {
+export class RegisterDto extends BaseAuthDto {
   @ApiProperty({
     description: 'Имя пользователя',
     example: 'Иван Иванов',
@@ -10,21 +11,4 @@ export class RegisterDto {
   @IsString({ message: 'Имя должно быть строкой' })
   @Length(2, 50, { message: 'Имя должно быть от 2 до 50 символов' })
   readonly name: string;
-
-  @ApiProperty({
-    description: 'Электронная почта пользователя',
-    example: 'ivan@example.com',
-  })
-  @IsNotEmpty({ message: 'Email не может быть пустым' })
-  @IsEmail({}, { message: 'Некорректный формат email' })
-  readonly email: string;
-
-  @ApiProperty({
-    description: 'Пароль пользователя',
-    example: 'сложный_пароль123',
-  })
-  @IsNotEmpty({ message: 'Пароль не может быть пустым' })
-  @IsString({ message: 'Пароль должен быть строкой' })
-  @Length(8, 20, { message: 'Пароль должен быть от 8 до 20 символов' })
-  readonly password: string;
 }

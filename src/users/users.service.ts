@@ -12,4 +12,9 @@ export class UsersService {
     const newUser = new this.userModel(user);
     return newUser.save();
   }
+
+  async findByEmail(email: string): Promise<User | null> {
+    const user = await this.userModel.findOne({ email }).exec();
+    return user;
+  }
 }
