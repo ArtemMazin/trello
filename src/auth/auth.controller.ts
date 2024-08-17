@@ -1,10 +1,11 @@
 import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
-import { LoginDto, RegisterDto, RegisterResponseDto } from './dto';
+import { LoginDto, RegisterDto } from './dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard } from 'src/guards/local-auth.guard';
 import { UserResponseDto } from 'src/users/dto';
+import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 
 @ApiTags('Аутентификация')
 @Controller('auth')
@@ -17,7 +18,7 @@ export class AuthController {
   @ApiResponse({
     status: 201,
     description: 'Пользователь успешно зарегистрирован',
-    type: RegisterResponseDto,
+    type: UserResponseDto,
   })
   @ApiResponse({ status: 400, description: 'Некорректные данные' })
   @ApiResponse({
@@ -27,7 +28,7 @@ export class AuthController {
   async register(
     @Body() userData: RegisterDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<RegisterResponseDto> {
+  ): Promise<UserResponseDto> {
     return this.authService.register(userData, res);
   }
 
@@ -38,7 +39,7 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: 'Пользователь успешно авторизован, возвращается токен доступа',
-    type: RegisterResponseDto,
+    type: UserResponseDto,
   })
   @ApiResponse({ status: 400, description: 'Некорректные данные' })
   @ApiResponse({
@@ -46,10 +47,21 @@ export class AuthController {
     description: 'Неверный email или пароль',
   })
   async login(
-    @Body() userData: LoginDto,
-    @Req() req: { user: UserResponseDto },
+    @Req() req: Request & { user: UserResponseDto },
     @Res({ passthrough: true }) res: Response,
-  ): Promise<RegisterResponseDto> {
-    return this.authService.login(userData, res, req.user);
+  ): Promise<UserResponseDto> {
+    return this.authService.login(res, req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  @ApiOperation({ summary: 'Выход пользователя' })
+  @ApiBody({ schema: { properties: { success: { type: 'boolean' } } } })
+  @ApiResponse({ status: 200, description: 'Пользователь успешно вышел' })
+  @ApiResponse({ status: 401, description: 'Пользователь не авторизован' })
+  async logout(
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ success: boolean }> {
+    return this.authService.logout(res);
   }
 }
