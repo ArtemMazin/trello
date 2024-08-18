@@ -8,6 +8,7 @@ import {
   ApiCreatedResponse,
   ApiConflictResponse,
 } from '@nestjs/swagger';
+import { CardResponseDto } from 'src/cards/dto';
 import { ColumnResponseDto } from 'src/columns/dto';
 import { UserResponseDto } from 'src/users/dto';
 
@@ -89,5 +90,38 @@ export const ApiCreateColumnResponse = () => {
       type: ColumnResponseDto,
     }),
     ApiBadRequestResponse({ description: 'Некорректные данные' }),
+  );
+};
+
+export const ApiCardResponses = () => {
+  return applyDecorators(
+    ApiOkResponse({
+      description: 'Операция с карточкой успешно выполнена',
+      type: CardResponseDto,
+    }),
+    ApiNotFoundResponse({ description: 'Карточка не найдена' }),
+    ApiCommonResponses(),
+  );
+};
+
+export const ApiCreateCardResponse = () => {
+  return applyDecorators(
+    ApiCreatedResponse({
+      description: 'Карточка успешно создана',
+      type: CardResponseDto,
+    }),
+    ApiBadRequestResponse({ description: 'Некорректные данные' }),
+  );
+};
+
+export const ApiMoveCardResponse = () => {
+  return applyDecorators(
+    ApiOkResponse({
+      description: 'Карточка успешно перемещена',
+      type: CardResponseDto,
+    }),
+    ApiNotFoundResponse({ description: 'Карточка не найдена' }),
+    ApiBadRequestResponse({ description: 'Некорректные данные' }),
+    ApiCommonResponses(),
   );
 };

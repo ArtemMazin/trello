@@ -13,17 +13,17 @@ export class ColumnsService {
   constructor(@InjectModel(Column.name) private columnModel: Model<Column>) {}
 
   async createColumn(
-    userId: string,
+    authorId: string,
     createColumnDto: CreateColumnDto,
   ): Promise<ColumnResponseDto> {
     try {
-      this.validateObjectId(userId);
+      this.validateObjectId(authorId);
       const newColumn = new this.columnModel({
         ...createColumnDto,
-        userId,
+        authorId,
       });
       const savedColumn = await newColumn.save();
-      this.logger.log(`Создана новая колонка для пользователя: ${userId}`);
+      this.logger.log(`Создана новая колонка для пользователя: ${authorId}`);
 
       return this.toColumnResponse(savedColumn);
     } catch (error) {

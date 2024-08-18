@@ -19,7 +19,7 @@ export class Comment extends Document {
   text: string;
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  author: Types.ObjectId;
+  authorId: Types.ObjectId;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);

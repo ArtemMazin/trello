@@ -4,20 +4,20 @@ import {
   ExecutionContext,
   ForbiddenException,
 } from '@nestjs/common';
-import { ColumnsService } from 'src/columns/columns.service';
+import { CardsService } from 'src/cards/cards.service';
 
 @Injectable()
-export class ColumnAuthorGuard implements CanActivate {
-  constructor(private columnsService: ColumnsService) {}
+export class CardAuthorGuard implements CanActivate {
+  constructor(private cardsService: CardsService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const userId = request.user._id;
-    const columnId = request.params.id;
+    const cardId = request.params.id;
 
-    const column = await this.columnsService.getColumn(columnId);
+    const card = await this.cardsService.getCard(cardId);
 
-    if (column.authorId.toString() !== userId.toString()) {
+    if (card.authorId.toString() !== userId.toString()) {
       throw new ForbiddenException(
         'У вас нет прав для выполнения этой операции',
       );

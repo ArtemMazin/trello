@@ -11,7 +11,7 @@ export class ColumnResponseDto {
   @Expose()
   @ApiProperty({ example: '5f9d5a7b9d3e2a1b3c5d7e9f' })
   @IsMongoId({ message: 'Некорректный формат ID пользователя' })
-  userId: string;
+  authorId: string;
 
   @Expose()
   @ApiProperty({ example: 'To Do' })
