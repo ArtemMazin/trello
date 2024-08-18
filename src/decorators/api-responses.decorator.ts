@@ -8,6 +8,7 @@ import {
   ApiCreatedResponse,
   ApiConflictResponse,
 } from '@nestjs/swagger';
+import { ColumnResponseDto } from 'src/columns/dto';
 import { UserResponseDto } from 'src/users/dto';
 
 export const ApiCommonResponses = () => {
@@ -67,5 +68,26 @@ export const ApiRegisterResponses = () => {
     ApiConflictResponse({
       description: 'Пользователь с таким email уже существует',
     }),
+  );
+};
+
+export const ApiColumnResponses = () => {
+  return applyDecorators(
+    ApiOkResponse({
+      description: 'Операция с колонкой успешно выполнена',
+      type: ColumnResponseDto,
+    }),
+    ApiNotFoundResponse({ description: 'Колонка не найдена' }),
+    ApiCommonResponses(),
+  );
+};
+
+export const ApiCreateColumnResponse = () => {
+  return applyDecorators(
+    ApiCreatedResponse({
+      description: 'Колонка успешно создана',
+      type: ColumnResponseDto,
+    }),
+    ApiBadRequestResponse({ description: 'Некорректные данные' }),
   );
 };
