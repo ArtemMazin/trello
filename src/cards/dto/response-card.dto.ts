@@ -7,6 +7,7 @@ import {
   IsDate,
   IsOptional,
   IsNumber,
+  Length,
 } from 'class-validator';
 
 export class CardResponseDto {
@@ -34,8 +35,12 @@ export class CardResponseDto {
   @Expose()
   @ApiProperty({ example: 'Подготовить ежемесячный отчет о продажах' })
   @IsOptional()
+  @IsOptional()
   @IsString({ message: 'Описание карточки должно быть строкой' })
-  description?: string;
+  @Length(0, 1000, {
+    message: 'Описание карточки должно быть не более 1000 символов',
+  })
+  readonly description?: string;
 
   @Expose()
   @ApiProperty({ example: 1 })

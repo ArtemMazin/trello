@@ -88,6 +88,20 @@ export class CardsController {
     return this.cardsService.deleteCard(id);
   }
 
+  @Patch(':id/order')
+  @ApiOperation({ summary: 'Изменение порядка карточки' })
+  @ApiParam({ name: 'id', description: 'ID карточки' })
+  @ApiBody({
+    schema: { type: 'object', properties: { order: { type: 'number' } } },
+  })
+  @ApiCardResponses()
+  async changeCardOrder(
+    @Param('id') id: string,
+    @Body('order') newOrder: number,
+  ): Promise<CardResponseDto> {
+    return this.cardsService.changeCardOrder(id, newOrder);
+  }
+
   @Patch(':id/move')
   @UseGuards(CardAuthorGuard)
   @ApiOperation({ summary: 'Перемещение карточки между колонками' })
@@ -98,10 +112,6 @@ export class CardsController {
     @Param('id') id: string,
     @Body() moveCardDto: MoveCardDto,
   ): Promise<CardResponseDto> {
-    return this.cardsService.moveCard(
-      id,
-      moveCardDto.newColumnId,
-      moveCardDto.newOrder,
-    );
+    return this.cardsService.moveCard(id, moveCardDto.newColumnId);
   }
 }

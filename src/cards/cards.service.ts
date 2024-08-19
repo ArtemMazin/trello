@@ -95,10 +95,27 @@ export class CardsService {
     return cards.map((card) => this.toCardResponse(card));
   }
 
+  async changeCardOrder(
+    cardId: string,
+    newOrder: number,
+  ): Promise<CardResponseDto> {
+    this.validateObjectId(cardId);
+
+    const card = await this.cardModel.findById(cardId);
+    if (!card) {
+      throw new CardNotFoundException(cardId);
+    }
+
+    card.order = newOrder;
+    const updatedCard = await card.save();
+    this.logger.log(`Изменен порядок карточки ${cardId} на ${newOrder}`);
+
+    return this.toCardResponse(updatedCard);
+  }
+
   async moveCard(
     cardId: string,
     newColumnId: string,
-    newOrder?: number,
   ): Promise<CardResponseDto> {
     this.validateObjectId(cardId);
     this.validateObjectId(newColumnId);
@@ -108,11 +125,7 @@ export class CardsService {
       throw new CardNotFoundException(cardId);
     }
 
-    card.columnId = new Types.ObjectId(newColumnId);
-    if (newOrder !== undefined) {
-      card.order = newOrder;
-    }
-
+    card.columnId = newColumnId;
     const updatedCard = await card.save();
     this.logger.log(`Карточка ${cardId} перемещена в колонку ${newColumnId}`);
 

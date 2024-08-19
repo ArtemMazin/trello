@@ -65,7 +65,7 @@ export class AuthService {
     return newUser;
   }
 
-  async validateUser(userData: LoginDto): Promise<UserResponseDto | null> {
+  async validateUser(userData: LoginDto): Promise<UserResponseDto> {
     const user = await this.usersService.findByEmailWithPassword(
       userData.email,
     );

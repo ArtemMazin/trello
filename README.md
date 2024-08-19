@@ -1,73 +1,112 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Trello Clone API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Это RESTful API, разработанное на NestJS, которое имитирует основной функционал Trello. API предоставляет возможности для управления досками, колонками, карточками и комментариями с системой аутентификации пользователей.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Особенности
 
-## Description
+- Аутентификация пользователей с использованием JWT
+- CRUD операции для пользователей, колонок, карточек и комментариев
+- Валидация входных данных
+- Авторизация на уровне ресурсов
+- Документация API с использованием Swagger
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Технологии
 
-## Installation
+- NestJS
+- MongoDB
+- Passport.js для аутентификации
+- JWT для авторизации
+- Class-validator для валидации данных
+- Swagger для документации API
 
-```bash
-$ npm install
+## Установка
+
+1. Клонируйте репозиторий:
+   `git clone git@github.com:ArtemMazin/trello.git`
+
+2. Перейдите в директорию проекта:
+   `cd trello`
+
+3. Установите зависимости:
+   `npm install`
+
+4. Создайте файл `.env` в корневой директории проекта и добавьте необходимые переменные окружения:
+
+   - `PORT`: Порт, на котором будет запущен сервер (по умолчанию 5000)
+   - `MONGO_URI`: URI для подключения к MongoDB
+   - `TOKEN_NAME`: Имя токена, используемого для аутентификации
+   - `JWT_SECRET`: Секретный ключ для подписи JWT токенов
+   - `TOKEN_MAX_AGE`: Максимальное время жизни токена в миллисекундах (по умолчанию 1 час)
+
+5. Запустите сервер:
+   `npm run start`
+
+## API Endpoints
+
+### Аутентификация:
+
+- `POST /auth/register` - Регистрация нового пользователя
+- `POST /auth/login` - Вход пользователя в систему
+- `POST /auth/logout` - Выход пользователя из системы
+
+### Пользователи:
+
+- `GET /users/:id` - Получение информации о пользователе по ID
+- `PATCH /users/:id` - Обновление информации пользователя
+- `DELETE /users/:id` - Удаление пользователя
+
+### Колонки:
+
+- `GET /users/:userId/columns` - Получение всех колонок пользователя
+- `POST /users/:userId/columns` - Создание новой колонки
+- `GET /users/:userId/columns/:id` - Получение информации о конкретной колонке
+- `PATCH /users/:userId/columns/:id` - Обновление информации колонки
+- `DELETE /users/:userId/columns/:id` - Удаление колонки
+
+### Карточки:
+
+- `GET /users/:userId/columns/:columnId/cards` - Получение всех карточек в колонке
+- `POST /users/:userId/columns/:columnId/cards` - Создание новой карточки
+- `GET /users/:userId/columns/:columnId/cards/:id` - Получение информации о конкретной карточке
+- `PATCH /users/:userId/columns/:columnId/cards/:id` - Обновление информации карточки
+- `DELETE /users/:userId/columns/:columnId/cards/:id` - Удаление карточки
+- `PATCH /users/:userId/columns/:columnId/cards/:id/move` - Перемещение карточки между колонками
+
+### Комментарии:
+
+- `GET /users/:userId/columns/:columnId/cards/:cardId/comments` - Получение всех комментариев к карточке
+- `POST /users/:userId/columns/:columnId/cards/:cardId/comments` - Создание нового комментария
+- `GET /users/:userId/columns/:columnId/cards/:cardId/comments/:id` - Получение конкретного комментария
+- `PATCH /users/:userId/columns/:columnId/cards/:cardId/comments/:id` - Обновление комментария
+- `DELETE /users/:userId/columns/:columnId/cards/:cardId/comments/:id` - Удаление комментария
+
+## Документация API
+
+После запуска приложения, документация Swagger доступна по адресу:
+[http://localhost:3000/api](http://localhost:3000/api)
+
+## Безопасность
+
+- Все эндпоинты, кроме регистрации и входа, требуют JWT токен для аутентификации.
+- Реализована проверка владельца ресурса для операций изменения и удаления.
+
+## Разработка
+
+- Для запуска приложения в режиме разработки:
+  `npm run start:dev`
+
+## Структура проекта
+
 ```
-
-## Running the app
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+src/
+├── auth/
+├── users/
+├── columns/
+├── cards/
+├── comments/
+├── guards/
+├── decorators/
+├── schemas/
+├── app.module.ts
+└── main.ts
 ```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).

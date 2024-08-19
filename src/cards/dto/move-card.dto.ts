@@ -1,5 +1,3 @@
-// src/cards/dto/move-card.dto.ts
-
 import { ApiProperty } from '@nestjs/swagger';
 import { IsMongoId, IsNumber, IsOptional } from 'class-validator';
 

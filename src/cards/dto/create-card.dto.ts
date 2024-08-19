@@ -7,7 +7,6 @@ import {
   IsNumber,
   Length,
 } from 'class-validator';
-import { Types } from 'mongoose';
 
 export class CreateCardDto {
   @ApiProperty({
@@ -16,7 +15,7 @@ export class CreateCardDto {
   })
   @IsNotEmpty({ message: 'ID колонки не может быть пустым' })
   @IsMongoId({ message: 'Некорректный формат ID колонки' })
-  readonly columnId: Types.ObjectId;
+  readonly columnId: string;
 
   @ApiProperty({
     description: 'ID автора карточки',
@@ -24,7 +23,7 @@ export class CreateCardDto {
   })
   @IsNotEmpty({ message: 'ID автора не может быть пустым' })
   @IsMongoId({ message: 'Некорректный формат ID автора' })
-  readonly authorId: Types.ObjectId;
+  readonly authorId: string;
 
   @ApiProperty({
     description: 'Заголовок карточки',
@@ -44,6 +43,9 @@ export class CreateCardDto {
   })
   @IsOptional()
   @IsString({ message: 'Описание карточки должно быть строкой' })
+  @Length(0, 1000, {
+    message: 'Описание карточки должно быть не более 1000 символов',
+  })
   readonly description?: string;
 
   @ApiProperty({
