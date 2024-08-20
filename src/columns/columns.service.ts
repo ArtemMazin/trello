@@ -5,12 +5,16 @@ import { Column } from 'src/schemas/column.schema';
 import { ColumnResponseDto, CreateColumnDto, UpdateColumnDto } from './dto';
 import { plainToClass } from 'class-transformer';
 import { ColumnNotFoundException } from './exeptions';
+import { CardsService } from 'src/cards/cards.service';
 
 @Injectable()
 export class ColumnsService {
   private readonly logger = new Logger(ColumnsService.name);
 
-  constructor(@InjectModel(Column.name) private columnModel: Model<Column>) {}
+  constructor(
+    @InjectModel(Column.name) private columnModel: Model<Column>,
+    private cardsService: CardsService,
+  ) {}
 
   async createColumn(
     authorId: string,
@@ -66,20 +70,35 @@ export class ColumnsService {
   async deleteColumn(id: string): Promise<{ success: boolean }> {
     this.validateObjectId(id);
 
-    const result = await this.columnModel.findByIdAndDelete(id).exec();
-    if (!result) {
-      throw new ColumnNotFoundException(id);
-    }
-    this.logger.log(`Колонка с id ${id} удалена`);
+    try {
+      const column = await this.columnModel.findById(id).exec();
+      if (!column) {
+        throw new ColumnNotFoundException(id);
+      }
 
-    return { success: true };
+      // Удаление всех карточек, связанных с этой колонкой
+      await this.cardsService.deleteCardsByColumnId(id);
+
+      // Удаление самой колонки
+      await this.columnModel.findByIdAndDelete(id).exec();
+
+      this.logger.log(`Колонка с id ${id} и все связанные карточки удалены`);
+
+      return { success: true };
+    } catch (error) {
+      this.logger.error(
+        `Ошибка при удалении колонки: ${error.message}`,
+        error.stack,
+      );
+      throw error;
+    }
   }
 
-  async getColumnsByUserId(userId: string): Promise<ColumnResponseDto[]> {
-    this.validateObjectId(userId);
+  async getColumnsByUserId(authorId: string): Promise<ColumnResponseDto[]> {
+    this.validateObjectId(authorId);
 
-    const columns = await this.columnModel.find({ userId }).exec();
-    this.logger.log(`Получены колонки для пользователя: ${userId}`);
+    const columns = await this.columnModel.find({ authorId }).exec();
+    this.logger.log(`Получены колонки для пользователя: ${authorId}`);
 
     return columns.map((column) => this.toColumnResponse(column));
   }

@@ -2,29 +2,12 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsString,
-  IsMongoId,
   IsOptional,
   IsNumber,
   Length,
 } from 'class-validator';
 
 export class CreateCardDto {
-  @ApiProperty({
-    description: 'ID колонки, к которой принадлежит карточка',
-    example: '5f9d5a7b9d3e2a1b3c5d7e9f',
-  })
-  @IsNotEmpty({ message: 'ID колонки не может быть пустым' })
-  @IsMongoId({ message: 'Некорректный формат ID колонки' })
-  readonly columnId: string;
-
-  @ApiProperty({
-    description: 'ID автора карточки',
-    example: '5f9d5a7b9d3e2a1b3c5d7e9f',
-  })
-  @IsNotEmpty({ message: 'ID автора не может быть пустым' })
-  @IsMongoId({ message: 'Некорректный формат ID автора' })
-  readonly authorId: string;
-
   @ApiProperty({
     description: 'Заголовок карточки',
     example: 'Написать отчет',

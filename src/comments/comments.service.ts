@@ -80,6 +80,20 @@ export class CommentsService {
     return { success: true };
   }
 
+  async deleteCommentsByCardId(cardId: string | string[]): Promise<void> {
+    if (Array.isArray(cardId)) {
+      cardId.forEach((id) => this.validateObjectId(id));
+      await this.commentModel.deleteMany({ cardId: { $in: cardId } }).exec();
+      this.logger.log(
+        `Удалены все комментарии для карточек с id: ${cardId.join(', ')}`,
+      );
+    } else {
+      this.validateObjectId(cardId);
+      await this.commentModel.deleteMany({ cardId }).exec();
+      this.logger.log(`Удалены все комментарии для карточки с id ${cardId}`);
+    }
+  }
+
   async getCommentsByCardId(cardId: string): Promise<CommentResponseDto[]> {
     this.validateObjectId(cardId);
 

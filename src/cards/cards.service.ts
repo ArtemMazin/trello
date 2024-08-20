@@ -5,12 +5,16 @@ import { Card } from 'src/schemas/card.schema';
 import { CardResponseDto, CreateCardDto, UpdateCardDto } from './dto';
 import { plainToClass } from 'class-transformer';
 import { CardNotFoundException } from './exeptions';
+import { CommentsService } from 'src/comments/comments.service';
 
 @Injectable()
 export class CardsService {
   private readonly logger = new Logger(CardsService.name);
 
-  constructor(@InjectModel(Card.name) private cardModel: Model<Card>) {}
+  constructor(
+    @InjectModel(Card.name) private cardModel: Model<Card>,
+    private commentsService: CommentsService,
+  ) {}
 
   async createCard(
     authorId: string,
@@ -19,13 +23,16 @@ export class CardsService {
   ): Promise<CardResponseDto> {
     try {
       this.validateObjectId(authorId);
+      this.validateObjectId(columnId);
       const newCard = new this.cardModel({
         ...createCardDto,
         authorId,
         columnId,
       });
       const savedCard = await newCard.save();
-      this.logger.log(`Создана новая карточка для автора: ${authorId}`);
+      this.logger.log(
+        `Создана новая карточка для автора: ${authorId} в колонке: ${columnId}`,
+      );
 
       return this.toCardResponse(savedCard);
     } catch (error) {
@@ -68,13 +75,48 @@ export class CardsService {
   async deleteCard(id: string): Promise<{ success: boolean }> {
     this.validateObjectId(id);
 
-    const result = await this.cardModel.findByIdAndDelete(id).exec();
-    if (!result) {
+    const card = await this.cardModel.findById(id).exec();
+    if (!card) {
       throw new CardNotFoundException(id);
     }
-    this.logger.log(`Карточка с id ${id} удалена`);
+
+    // Удаление всех комментариев, связанных с этой карточкой
+    await this.commentsService.deleteCommentsByCardId(id);
+
+    // Удаление самой карточки
+    await this.cardModel.deleteOne({ _id: id }).exec();
+
+    this.logger.log(`Карточка с id ${id} и все связанные комментарии удалены`);
 
     return { success: true };
+  }
+
+  async deleteCardsByColumnId(columnId: string): Promise<void> {
+    try {
+      const cards = await this.cardModel
+        .find({ columnId }, '_id')
+        .lean()
+        .exec();
+      const cardIds = cards.map((card) => card._id.toString());
+
+      if (cardIds.length > 0) {
+        await this.commentsService.deleteCommentsByCardId(cardIds);
+      }
+
+      await this.cardModel.deleteMany({ columnId }).exec();
+
+      this.logger.log(
+        `Удалены все карточки и комментарии для колонки с id ${columnId}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Ошибка при удалении карточек и комментариев для колонки ${columnId}: ${error.message}`,
+        error.stack,
+      );
+      throw new BadRequestException(
+        'Ошибка при удалении карточек и комментариев',
+      );
+    }
   }
 
   async getCardsByColumnId(columnId: string): Promise<CardResponseDto[]> {

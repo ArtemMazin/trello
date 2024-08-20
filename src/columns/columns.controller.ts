@@ -73,7 +73,7 @@ export class ColumnsController {
 
   @Delete(':id')
   @UseGuards(ColumnAuthorGuard)
-  @ApiOperation({ summary: 'Удаление колонки' })
+  @ApiOperation({ summary: 'Удаление колонки и связанных карточек' })
   @ApiParam({ name: 'id', description: 'ID колонки' })
   @ApiSuccessResponse()
   @ApiCommonResponses()

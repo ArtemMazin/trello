@@ -80,7 +80,7 @@ export class CardsController {
 
   @Delete(':id')
   @UseGuards(CardAuthorGuard)
-  @ApiOperation({ summary: 'Удаление карточки' })
+  @ApiOperation({ summary: 'Удаление карточки и всех ее комментариев' })
   @ApiParam({ name: 'id', description: 'ID карточки' })
   @ApiSuccessResponse()
   @ApiCommonResponses()
